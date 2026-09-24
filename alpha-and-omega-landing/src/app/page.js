@@ -1,32 +1,60 @@
-import Image from "next/image";
-import blackHole from "../../public/blackhole.png";
+"use client";
+
+import { useEffect, useState } from "react";
 import Navbar from "@/components/navbar";
+import Image from "next/image";
+
+import starfield from "../../public/starfield.png";
+import logo from "../../public/logo.png";
 
 export default function Home() {
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const [driftOffset, setDriftOffset] = useState(0);
+
+  useEffect(() => {
+    let frameId = null;
+
+    const animate = (time) => {
+      setScrollOffset(window.scrollY * 0.18);
+      setDriftOffset(((time * 0.015) % 320) - 160);
+      frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+
+    return () => {
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, []);
+
   return (
     <main className="">
       <div className="fixed inset-0">
-        <div className="fixed inset-0">
-          <Image
-            src={blackHole}
-            alt="A glowing black hole in deep space"
-            fill
-            priority
-            sizes="100vw"
-            className="absolute inset-0"
+        <div className="fixed inset-0 overflow-hidden">
+          <div
+            className="absolute inset-[-10%] opacity-80"
+            style={{
+              backgroundImage: `url(${starfield.src})`,
+              backgroundRepeat: "repeat",
+              backgroundSize: "320px 320px",
+              transform: `translate(${driftOffset}px, ${scrollOffset}px) scale(1.08)`,
+              willChange: "transform",
+            }}
           />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src={logo}
+              alt="AOG logo"
+              className="h-[90vh] w-auto object-contain opacity-70"
+              priority
+            />
+          </div>
           <div className="darken-pulse absolute inset-0 bg-radial from-[#000000aa] to-black" />
         </div>
-        <div className="flex flex-col size-auto items-start opacity-80 ml-[10%] mt-[5%]">
-          <div className="flex flex-row">
-            <h1 className="text-9xl text-red-600">Alpha</h1>
-            <h1 className="text-9xl text-white">&nbsp;and</h1>
-          </div>
-          <h1 className="text-9xl text-orange-500 ml-5">Omega</h1>
-          <h1 className="text-9xl text-white ml-10">Gaming</h1>
-        </div>
-        <h2 className="absolute bottom-10 w-full text-center text-white text-5xl">
-          Real developers building real value.
+        <h2 className="absolute bottom-10 w-full text-center text-white text-4xl opacity-80">
+          Passionate developers building exceptional experiences.
         </h2>
       </div>
       <Navbar />
